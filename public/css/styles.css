@@ -1,5 +1,5 @@
 body{
-        background-color: aliceblue;
+        background-color: aliceblue;       
 }
 
 #home{
@@ -21,13 +21,11 @@ body{
 
 h1{
         text-align: center;
-        margin-top: 5%;
-        margin-bottom: 8%;
+        margin-bottom: 5%;
 }
 
 .btns{
         display: flex;
-        gap: 10%;
 }
 
 .row{
@@ -78,4 +76,34 @@ hr{
         width: 12%;
         display: block;
         margin: 0 auto;
+}
+
+#nav-options {
+        position: absolute;
+        top: 6%;
+        right: 1%;
+        font-size: 25px;
+}
+
+#nav-options a {
+        margin-right: 20px;
+        text-decoration: none;
+        color: black;
+}
+
+#nav-options a:hover {
+        color: red;
+        transition: color 0.3s;
+        border-radius: 5px;
+        text-shadow: 1px 1px 2px #636363
+}
+
+#cgpass{
+       text-decoration: none;
+       color: white;
+       width: 50%;        
+}
+
+#cgpass button{
+        width: 70%; 
 }

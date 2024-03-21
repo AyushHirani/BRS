@@ -17,6 +17,10 @@ app.get("/login", (req,res) => {
         res.render("login");
 })
 
+app.get("/change-password", (req,res) => {
+        res.render("changepass");
+})
+
 app.get("/register", (req,res) => {
         res.render("register");
 })
@@ -32,6 +36,16 @@ app.post("/login", (req,res) => {
 app.post("/register", (req,res) => {
         res.redirect("/");
 })
+
+app.post("/change-password", (req, res) => {
+        const { currentPassword, newPassword, confirmPassword } = req.body;
+    
+        if (newPassword !== confirmPassword) {
+            res.render("changepass", { error: "The passwords do not match" });
+        } else {
+            res.redirect("/login");
+        }
+    });
 
 app.listen(port, () => {
         console.log("Server running on port 3000.");
