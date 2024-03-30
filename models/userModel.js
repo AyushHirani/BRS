@@ -5,6 +5,6 @@ const userSchema = new mongoose.Schema({
         password: String,
         employeeID: String,
         email: String
-})
+});
 
 export const User = mongoose.model('user', userSchema);

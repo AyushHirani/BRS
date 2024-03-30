@@ -3,8 +3,10 @@ import express from "express";
 import ejs from "ejs";
 import bodyParser from "body-parser";
 import mongoose from 'mongoose';
+import session from 'express-session';
 import bcrypt from 'bcrypt';
 import { User } from './models/userModel.js';
+import { Bug } from './models/bugModel.js';
 
 const app = express();
 const uri = process.env.URI;
@@ -16,6 +18,12 @@ mongoose.connect(uri)
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public"));
 app.set("view engine", "ejs");
+
+app.use(session({
+    secret: process.env.KEY, 
+    resave: false,
+    saveUninitialized: true
+}));
 
 const port = 3000;
 
@@ -68,6 +76,7 @@ app.post("/login", async (req,res) => {
 
         const passwordMatch = await bcrypt.compare(password, user.password);
         if (passwordMatch) {
+            req.session.userId = user._id;
             return res.redirect("/bugs");
         } else {
             return res.redirect("/login");
@@ -111,6 +120,10 @@ app.post("/change-password", async (req, res) => {
         }
 });
 
+app.post("/bugs", (req, res) => {
+    res.render("bugs");
+});
+
 app.listen(port, () => {
     console.log(`Server running on port ${port}.`);
-})
+});
