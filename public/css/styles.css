@@ -1,5 +1,6 @@
 body{
-        background-color: aliceblue;       
+        background-color: aliceblue;     
+        margin-bottom: 5%;  
 }
 
 #home{
@@ -21,7 +22,7 @@ body{
 
 h1{
         text-align: center;
-        margin-bottom: 5%;
+        margin-bottom: 2%;
 }
 
 .btns{
@@ -106,4 +107,38 @@ hr{
 
 #cgpass button{
         width: 70%; 
+}
+
+.checkbox-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+}
+
+.yesno{
+        width: 5%;
+        height: 25px;
+}
+
+#question{
+        margin-bottom: 5px;
+}
+
+.form-control[name= "bugType"]{
+        width: 40.8%;
+        margin-left: 5.5%;
+}
+
+.form-control[name= "date"]{
+        width: 35%;
+}
+
+.form-control[name= "priority"]{
+        width: 25%;
+        margin-left: 1.7%;
+}
+
+.change{
+        display: flex;
+        gap: 5%;
 }

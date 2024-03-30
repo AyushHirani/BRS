@@ -1,0 +1,58 @@
+<%- include('partials/header') %>
+<%- include('partials/nav') %>
+
+<div class="container mt-5">
+        <div class="row">
+              <h1>New Bug Report</h1>
+          <div class="col-sm-8 box">
+            <div class="card">
+              <div class="card-body">
+                <form action="/bugs" method="POST">
+                  <div class="form-group">
+                    <label for="btitle">Title</label>
+                    <input type="text" class="form-control" name="btitle" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="binfo">Description</label>
+                    <textarea rows="3" class="form-control" name="binfo" required></textarea>
+                  </div>
+                  <div class="form-group  change">
+                        <label for="type">Bug Priority</label>
+                        <select name="priority" id="priority" class="form-control"> 
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                        </select>
+                  </div>
+                  <div class="form-group  change">
+                        <label for="type">Bug Type</label>
+                        <select name="bugType" id="bugType" class="form-control"> 
+                                <option value="functional">Functional bugs</option>
+                                <option value="usability">Usability bugs</option>
+                                <option value="logic">Logic errors</option>
+                                <option value="performance">Performance bugs</option>
+                                <option value="compatibility">Compatibility bugs</option>
+                                <option value="syntax">Syntax errors</option>
+                        </select>
+                  </div>
+                  <div class="form-group  change">
+                        <label for="date">Today's Date</label>
+                        <input type="date" class="form-control" name="date" required> 
+                  </div>
+                  <p id="question">Do you want to be notified about the changes on this bug?</p>
+                  <div class="form-group checkbox-container">
+                        <label for="notify-yes">Yes</label>
+                        <input type="radio" id="notify-yes" class="form-control yesno" name="notify" value="yes">
+                    
+                        <label for="notify-no">No</label>
+                        <input type="radio" id="notify-no" class="form-control yesno" name="notify" value="no">
+                  </div>
+                  <button type="submit" class="btn btn-dark">Create</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+<%- include('partials/footer') %>
