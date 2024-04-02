@@ -57,13 +57,29 @@ app.get("/register", (req,res) => {
     res.render("register");
 })
 
-app.get("/bugs", (req,res) => {
-    res.render("bugs");
+app.get("/bugs", async (req, res) => {
+    const bugs = await Bug.find();
+    res.render("bugs", {bugs});
 })
 
 app.get("/new-bug", (req, res) => {
     res.render("bug-form");
 })
+
+app.get("/edit/:id", async (req, res) => {
+    try {
+        const bug = await Bug.findById(req.params.id);
+
+        if (!bug) {
+            return res.status(404).send("Bug not found");
+        }
+
+        res.render("edit-bug", { bug });
+    } catch (error) {
+        console.error("Error fetching bug:", error);
+        res.status(500).send("Internal Server Error");
+    }
+});
 
 app.post("/login", async (req,res) => {
     const { username, password } = req.body;
@@ -120,8 +136,74 @@ app.post("/change-password", async (req, res) => {
         }
 });
 
-app.post("/bugs", (req, res) => {
-    res.render("bugs");
+app.post("/bugs", async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const user = await User.findById(userId);
+        const bugs = await Bug.find();
+
+        if (!user) {
+            return res.status(404).send("User not found");
+        }
+
+        const newBug = new Bug({
+            title: req.body.btitle,
+            description: req.body.binfo,
+            priority: req.body.priority,
+            type: req.body.bugType,
+            date: req.body.date,
+            notify: req.body.notify
+        });
+
+        if (req.body.notify === 'yes') {
+            newBug.users.push(user.email);
+        }
+
+        await newBug.save();
+
+        res.render("bugs", {bugs});
+    } catch (error) {
+        console.error("Error fetching user:", error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+app.post("/update/:id", async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const user = await User.findById(userId);
+        const bugId = req.params.id;
+        const updatedFields = {
+            title: req.body.btitle,
+            description: req.body.binfo,
+            priority: req.body.priority,
+            type: req.body.bugType,
+            date: req.body.date,
+            notify: req.body.notify
+        };
+
+        if (!user) {
+            return res.status(404).send("User not found");
+        }
+
+        await Bug.findByIdAndUpdate(bugId, updatedFields);
+
+        const bug = await Bug.findById(bugId);
+        if (req.body.notify === 'yes' && !bug.users.includes(user.email)) {
+            bug.users.push(user.email);
+            await bug.save();
+        }
+
+        if (req.body.notify === 'no' && bug.users.includes(user.email)) {
+            bug.users = bug.users.filter(email => email !== user.email);
+            await bug.save();
+        }
+
+        res.redirect("/bugs");
+    } catch (error) {
+        console.error("Error updating bug:", error);
+        res.status(500).send("Internal Server Error");
+    }
 });
 
 app.listen(port, () => {

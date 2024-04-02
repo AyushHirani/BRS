@@ -1,0 +1,57 @@
+<%- include('partials/header') %>
+<%- include('partials/nav') %>
+
+<div class="container mt-5">
+    <div class="row">
+        <h1>Edit Bug Report</h1>
+        <div class="col-sm-8 box">
+            <div class="card">
+                <div class="card-body">
+                    <form action="/update/<%= bug._id %>" method="POST">
+                        <div class="form-group">
+                            <label for="btitle">Title</label>
+                            <input type="text" class="form-control" name="btitle" value="<%= bug.title %>" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="binfo">Description</label>
+                            <textarea rows="3" class="form-control" name="binfo" required><%= bug.description %></textarea>
+                        </div>
+                        <div class="form-group change">
+                            <label for="priority">Bug Priority</label>
+                            <select name="priority" id="priority" class="form-control">
+                                <option value="low" <% if (bug.priority === 'low') { %>selected<% } %>>Low</option>
+                                <option value="medium" <% if (bug.priority === 'medium') { %>selected<% } %>>Medium</option>
+                                <option value="high" <% if (bug.priority === 'high') { %>selected<% } %>>High</option>
+                            </select>
+                        </div>
+                        <div class="form-group change">
+                            <label for="bugType">Bug Type</label>
+                            <select name="bugType" id="bugType" class="form-control">
+                                <option value="functional" <% if (bug.type === 'functional') { %>selected<% } %>>Functional bugs</option>
+                                <option value="usability" <% if (bug.type === 'usability') { %>selected<% } %>>Usability bugs</option>
+                                <option value="logic" <% if (bug.type === 'logic') { %>selected<% } %>>Logic errors</option>
+                                <option value="performance" <% if (bug.type === 'performance') { %>selected<% } %>>Performance bugs</option>
+                                <option value="compatibility" <% if (bug.type === 'compatibility') { %>selected<% } %>>Compatibility bugs</option>
+                                <option value="syntax" <% if (bug.type === 'syntax') { %>selected<% } %>>Syntax errors</option>
+                            </select>
+                        </div>
+                        <div class="form-group change">
+                            <label for="date">Today's Date</label>
+                            <input type="date" class="form-control" name="date" value="<%= bug.date.toISOString().substring(0, 10) %>" required>
+                        </div>
+                        <p id="question">Do you want to be notified about the changes on this bug?</p>
+                        <div class="form-group checkbox-container">
+                            <select name="notify" id="notify" class="form-control">
+                                <option value="yes" <% if (bug.notify === 'yes') { %>selected<% } %>>Yes</option>
+                                <option value="no" <% if (bug.notify === 'no') { %>selected<% } %>>No</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-dark">Update</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('partials/footer') %>

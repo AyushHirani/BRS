@@ -1,9 +1,19 @@
 <%- include('partials/header') %>
 <%- include('partials/nav-display') %>
 
-<div>
-        <div>
-                
-        </div>
+<div id="box">
+    <% if (locals.bugs) { %>
+        <% bugs.forEach(bug => { %>
+            <div class="bug-card">
+                <span class="date"><%= bug.date.toISOString().substring(0, 10) %></span>
+                <h2 class="title"><%= bug.title %></h2>
+                <p class="description"><%= bug.description %></p>
+                <a href="/edit/<%= bug._id %>" class="edit-button">Edit</a>
+                <a href="/close/<%= bug._id %>" class="close-button">Close</a>
+            </div>
+        <% }); %>
+    <% } else { %>
+    <% } %>
 </div>
+
 <%- include('partials/footer') %>
