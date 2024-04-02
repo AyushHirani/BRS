@@ -7,9 +7,40 @@ import session from 'express-session';
 import bcrypt from 'bcrypt';
 import { User } from './models/userModel.js';
 import { Bug } from './models/bugModel.js';
+import nodemailer from 'nodemailer';
+
 
 const app = express();
 const uri = process.env.URI;
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false,
+    auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASS
+    }
+});
+
+async function sendEmailNotification(to, subject, text) {
+    const mailOptions = {
+        from: {
+            name: 'Bug Report System',
+            address: process.env.EMAIL
+        },
+        to: to,
+        subject: subject,
+        text: text
+    };
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log('Email notification sent successfully.');
+    } catch (error) {
+        console.error('Error sending email notification:', error);
+    }
+}
+
 
 mongoose.connect(uri)
     .then(() => console.log("Database Connected!"))
@@ -41,30 +72,30 @@ async function insert(name, pass, id, email) {
     }
 }
 
-app.get("/", (req,res) => {
+app.get("/", (req, res) => {
     res.render("home");
-})
+});
 
-app.get("/login", (req,res) => {
+app.get("/login", (req, res) => {
     res.render("login");
-})
+});
 
-app.get("/change-password", (req,res) => {
+app.get("/change-password", (req, res) => {
     res.render("changepass");
-})
+});
 
-app.get("/register", (req,res) => {
+app.get("/register", (req, res) => {
     res.render("register");
-})
+});
 
 app.get("/bugs", async (req, res) => {
     const bugs = await Bug.find();
-    res.render("bugs", {bugs});
-})
+    res.render("bugs", { bugs });
+});
 
 app.get("/new-bug", (req, res) => {
     res.render("bug-form");
-})
+});
 
 app.get("/edit/:id", async (req, res) => {
     try {
@@ -79,6 +110,32 @@ app.get("/edit/:id", async (req, res) => {
         console.error("Error fetching bug:", error);
         res.status(500).send("Internal Server Error");
     }
+});
+
+app.get("/close/:id", async (req, res) => {
+    try {
+        const bug = await Bug.findById(req.params.id);
+
+        if (!bug) {
+            return res.status(404).send("Bug not found");
+        }
+
+        res.render("close-bug", { bug });
+    } catch (error) {
+        console.error("Error fetching bug:", error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+app.get("/logout", (req, res) => {
+    req.session.destroy(err => {
+        if (err) {
+            console.error("Error logging out:", err);
+            res.status(500).send("Internal Server Error");
+        } else {
+            res.redirect("/");
+        }
+    });
 });
 
 app.post("/login", async (req,res) => {
@@ -140,7 +197,6 @@ app.post("/bugs", async (req, res) => {
     try {
         const userId = req.session.userId;
         const user = await User.findById(userId);
-        const bugs = await Bug.find();
 
         if (!user) {
             return res.status(404).send("User not found");
@@ -152,7 +208,8 @@ app.post("/bugs", async (req, res) => {
             priority: req.body.priority,
             type: req.body.bugType,
             date: req.body.date,
-            notify: req.body.notify
+            notify: req.body.notify,
+            status: 'open'
         });
 
         if (req.body.notify === 'yes') {
@@ -161,7 +218,7 @@ app.post("/bugs", async (req, res) => {
 
         await newBug.save();
 
-        res.render("bugs", {bugs});
+        res.redirect("/bugs");
     } catch (error) {
         console.error("Error fetching user:", error);
         res.status(500).send("Internal Server Error");
@@ -179,7 +236,7 @@ app.post("/update/:id", async (req, res) => {
             priority: req.body.priority,
             type: req.body.bugType,
             date: req.body.date,
-            notify: req.body.notify
+            notify: req.body.notify,
         };
 
         if (!user) {
@@ -198,6 +255,50 @@ app.post("/update/:id", async (req, res) => {
             bug.users = bug.users.filter(email => email !== user.email);
             await bug.save();
         }
+
+        await sendEmailNotification(bug.users, 'Bug Updated', 'The bug ' + updatedFields.title + ' has been updated.');
+
+        res.redirect("/bugs");
+    } catch (error) {
+        console.error("Error updating bug:", error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+app.post("/close/:id", async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const user = await User.findById(userId);
+        const bugId = req.params.id;
+        const updatedFields = {
+            title: req.body.btitle,
+            description: req.body.binfo,
+            priority: req.body.priority,
+            type: req.body.bugType,
+            date: req.body.date,
+            notify: req.body.notify,
+            status: 'close',
+            reason: req.body.reason
+        };
+
+        if (!user) {
+            return res.status(404).send("User not found");
+        }
+
+        await Bug.findByIdAndUpdate(bugId, updatedFields);
+
+        const bug = await Bug.findById(bugId);
+        if (req.body.notify === 'yes' && !bug.users.includes(user.email)) {
+            bug.users.push(user.email);
+            await bug.save();
+        }
+
+        if (req.body.notify === 'no' && bug.users.includes(user.email)) {
+            bug.users = bug.users.filter(email => email !== user.email);
+            await bug.save();
+        }
+
+        await sendEmailNotification(bug.users, 'Bug Closed', 'The bug ' + updatedFields.title + ' has been closed.');
 
         res.redirect("/bugs");
     } catch (error) {

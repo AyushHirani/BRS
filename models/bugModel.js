@@ -7,7 +7,9 @@ const bugSchema = new mongoose.Schema({
         type: String,
         date: Date,
         notify: String,
-        users: Array
+        users: Array,
+        status: String,
+        reason: String
 });
 
 export const Bug = mongoose.model('bug', bugSchema);

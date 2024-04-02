@@ -19,6 +19,7 @@
     "express-session": "^1.18.0",
     "mongodb": "^6.5.0",
     "mongoose": "^8.2.3",
+    "nodemailer": "^6.9.13",
     "passport": "^0.7.0"
   }
 }
